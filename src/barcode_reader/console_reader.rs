@@ -5,7 +5,7 @@ pub struct ConsoleBarcodeReader{
 }
 
 impl BarcodeReader for ConsoleBarcodeReader{
-    fn read() -> String {
+    fn read(&self) -> String {
         let mut s=String::new();
         print!("Please enter some barcode: ");
         let _=stdout().flush();

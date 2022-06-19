@@ -1,3 +1,3 @@
 pub trait BarcodeReader{
-    fn read() -> String;
+    fn read(&self) -> String;
 }
