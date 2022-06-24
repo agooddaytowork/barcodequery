@@ -6,9 +6,10 @@ pub enum BarcodeStorageEnum {
     NewStorage,
 }
 
- pub trait BarCodeStorage {
-    fn load(&mut self, input_file: String, storage_type: BarcodeStorageEnum) -> bool;
-    fn dump(&mut self, output_file: String, storage_type: BarcodeStorageEnum) -> bool;
-    fn get_mut_existing_storage(&mut self) -> &mut HashSet<String>;
+pub trait BarCodeStorage {
+    fn load(&mut self) -> bool;
+    fn dump(&mut self) -> bool;
+    fn insert(&mut self, input: String);
+    // fn get_mut_storage(&mut self) -> &mut HashSet<String>;
 }
 

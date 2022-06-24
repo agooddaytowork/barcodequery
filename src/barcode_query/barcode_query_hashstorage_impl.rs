@@ -7,70 +7,44 @@ use crate::barcode_query::storage::{BarCodeStorage, BarcodeStorageEnum};
 
 impl BarCodeQuery for BarCodeQueryHashStorageImpl {
     fn query(&self, input: String) -> bool {
-        self.existing_storage.contains(&input)
-    }
-
-    fn query_with_insert(&mut self, input: String) -> bool {
-        if self.existing_storage.contains(&input) {
-            return true;
-        }
-        self.new_storage.insert(input);
-
-        return false;
+        self.storage.contains(&input)
     }
 }
 
 
 pub struct BarCodeQueryHashStorageImpl {
-    existing_storage: HashSet<String>,
-    new_storage: HashSet<String>,
+    file_path: String,
+    storage: HashSet<String>,
 }
 
 impl BarCodeQueryFactory for BarCodeQueryHashStorageImpl {
-    fn new() -> BarCodeQueryHashStorageImpl {
+    fn new(file_path: String) -> BarCodeQueryHashStorageImpl {
         BarCodeQueryHashStorageImpl {
-            existing_storage: HashSet::new(),
-            new_storage: HashSet::new(),
+            file_path,
+            storage: HashSet::new(),
         }
     }
 }
 
 impl BarCodeStorage for BarCodeQueryHashStorageImpl {
-    fn load(&mut self, input_file: String, storage_type: BarcodeStorageEnum) -> bool {
-        let content = fs::read_to_string(input_file).expect("cannot read file");
+    fn load(&mut self) -> bool {
+        let content = fs::read_to_string(&self.file_path).expect("cannot read file");
         for line in content.split("\n") {
-            match storage_type {
-                BarcodeStorageEnum::ExistingStorage => {
-                    self.existing_storage.insert(line.parse().unwrap());
-                }
-                BarcodeStorageEnum::NewStorage => {
-                    self.new_storage.insert(line.parse().unwrap());
-                }
-            }
+            self.storage.insert(line.parse().unwrap());
         }
         true
     }
 
-    fn dump(&mut self, output_file: String, storage_type: BarcodeStorageEnum) -> bool {
-        let mut file = File::create(output_file).expect("unable to create file");
+    fn dump(&mut self) -> bool {
+        let mut file = File::create(&self.file_path).expect("unable to create file");
 
-        match storage_type {
-            BarcodeStorageEnum::ExistingStorage => {
-                for line in &self.existing_storage {
-                    file.write_fmt(format_args!("{}\n", line)).expect("could not write to file");
-                }
-            }
-            BarcodeStorageEnum::NewStorage => {
-                for line in &self.new_storage {
-                    file.write_fmt(format_args!("{}\n", line)).expect("could not write to file");
-                }
-            }
+        for line in &self.storage {
+            file.write_fmt(format_args!("{}\n", line)).expect("could not write to file");
         }
-
         true
     }
 
-    fn get_mut_existing_storage(&mut self) -> &mut HashSet<String> {
-        &mut self.existing_storage
+    fn insert(&mut self, input: String) {
+        self.storage.insert(input);
     }
 }

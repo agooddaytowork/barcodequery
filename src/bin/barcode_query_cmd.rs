@@ -8,11 +8,14 @@ use barcodequery::barcode_query_app::barcode_query_app::{BarcodeQueryApp, Barcod
 use barcodequery::barcode_reader::console_reader::ConsoleBarcodeReader;
 
 fn main() {
-    let mut barcode_query: BarCodeQueryHashStorageImpl = BarCodeQueryHashStorageImpl::new();
-    barcode_query.load("test.txt".to_string(), ExistingStorage);
-    let query_app = BarcodeQueryAppImpl {
+    let mut existing_storage: BarCodeQueryHashStorageImpl = BarCodeQueryHashStorageImpl::new("test.txt".to_string());
+    let mut error_storage: BarCodeQueryHashStorageImpl = BarCodeQueryHashStorageImpl::new("error.txt".to_string());
+    existing_storage.load();
+
+    let mut query_app = BarcodeQueryAppImpl {
         reader: Box::new( ConsoleBarcodeReader {}),
-        query: Box::new(barcode_query)
+        existing_storage,
+        error_storage
     };
     query_app.run();
 }
