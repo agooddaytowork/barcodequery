@@ -1,9 +1,7 @@
-use crate::barcode_query::storage::BarCodeStorage;
-
 pub trait BarCodeQuery {
-    fn query(&self, input: String) -> bool;
+    fn query(&self, bar_code: BarCode) -> bool;
 }
 
-pub trait BarCodeQueryFactory {
-    fn new(file_path: String) -> Self;
+pub struct BarCode {
+    pub code_string: String
 }
