@@ -1,17 +1,18 @@
-use crate::barcode_query::barcode_query_hashstorage_impl::BarCodeQueryHashStorageImpl;
-use crate::barcode_query::model::BarCodeQuery;
+use crate::barcode_query::barcode_query_hashstorage_impl::BarCodeFileHashStorageImpl;
+use crate::barcode_query::model::{BarCode, BarCodeQuery};
 use crate::barcode_query::storage::BarCodeStorage;
 use crate::barcode_reader::reader::BarcodeReader;
+
+// TODO - logging
 
 pub trait BarcodeQueryApp {
     fn run(&mut self);
 }
 
-
 pub struct BarcodeQueryAppImpl {
     pub reader: Box<dyn BarcodeReader>,
-    pub existing_storage: BarCodeQueryHashStorageImpl,
-    pub error_storage: BarCodeQueryHashStorageImpl
+    pub existing_storage: BarCodeFileHashStorageImpl,
+    pub error_storage: BarCodeFileHashStorageImpl,
 }
 
 impl BarcodeQueryApp for BarcodeQueryAppImpl {
@@ -19,13 +20,20 @@ impl BarcodeQueryApp for BarcodeQueryAppImpl {
         let mut exist = false;
         while !exist {
             let query_string = self.reader.read();
+            // TODO - many clones of query_string, is it expensive?
             if query_string == "exit" {
                 exist = true;
                 self.error_storage.dump();
             } else {
-                let query_existing_storage_result = self.existing_storage.query(query_string.clone());
-                println!("query existing storage: {} {}", &query_string, query_existing_storage_result);
-                if !query_existing_storage_result{
+                let bar_code = BarCode {
+                    code_string: query_string.clone(),
+                };
+                let exists_in_storage = self.existing_storage.query(bar_code);
+                println!(
+                    "query existing storage: {} {}",
+                    query_string.clone(), exists_in_storage
+                );
+                if !exists_in_storage {
                     println!("insert unknown query to error storage");
                     self.error_storage.insert(query_string.clone())
                 }
