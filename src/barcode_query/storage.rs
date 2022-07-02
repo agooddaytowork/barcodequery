@@ -1,5 +1,3 @@
-use std::collections::HashSet;
-
 #[derive(PartialEq, Clone, Copy)]
 pub enum BarcodeStorageEnum {
     ExistingStorage,
