@@ -10,4 +10,3 @@ pub trait BarCodeStorage {
     fn insert(&mut self, input: String);
     // fn get_mut_storage(&mut self) -> &mut HashSet<String>;
 }
-

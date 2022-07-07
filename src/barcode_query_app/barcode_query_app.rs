@@ -5,18 +5,14 @@ use crate::barcode_reader::reader::BarcodeReader;
 
 // TODO - logging
 
-pub trait BarcodeQueryApp {
-    fn run(&mut self);
-}
-
-pub struct BarcodeQueryAppImpl {
+pub struct BarcodeQueryApp {
     pub reader: Box<dyn BarcodeReader>,
     pub existing_storage: BarCodeFileHashStorageImpl,
     pub error_storage: BarCodeFileHashStorageImpl,
 }
 
-impl BarcodeQueryApp for BarcodeQueryAppImpl {
-    fn run(&mut self) {
+impl BarcodeQueryApp {
+    pub fn run(&mut self) {
         let mut exist = false;
         while !exist {
             let query_string = self.reader.read();
@@ -31,7 +27,8 @@ impl BarcodeQueryApp for BarcodeQueryAppImpl {
                 let exists_in_storage = self.existing_storage.query(bar_code);
                 println!(
                     "query existing storage: {} {}",
-                    query_string.clone(), exists_in_storage
+                    query_string.clone(),
+                    exists_in_storage
                 );
                 if !exists_in_storage {
                     println!("insert unknown query to error storage");

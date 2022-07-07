@@ -3,5 +3,17 @@ pub trait BarCodeQuery {
 }
 
 pub struct BarCode {
-    pub code_string: String
+    pub code_string: String,
+}
+
+pub struct ResultError {
+    error: String,
+}
+
+pub struct ResultExisting {
+    bar_code: BarCode,
+}
+
+pub struct ResultDuplicated {
+    bar_code: BarCode,
 }
