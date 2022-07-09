@@ -1,19 +1,28 @@
+use std::sync::Arc;
 use axum::extract::ws::{Message, WebSocket};
 use axum::extract::WebSocketUpgrade;
 use axum::response::IntoResponse;
-use axum::{headers, TypedHeader};
+use axum::{Extension, headers, TypedHeader};
+use tokio::sync::oneshot::Receiver;
+use crate::barcode_query::model;
+
+// shared state
+pub struct AppState {
+    receiver: Receiver<model::Message>,
+}
 
 pub async fn ws_handler(
     ws: WebSocketUpgrade,
     user_agent: Option<TypedHeader<headers::UserAgent>>,
+    receiver: Receiver<model::Message>,
 ) -> impl IntoResponse {
     if let Some(TypedHeader(user_agent)) = user_agent {
         println!("`{}` connected", user_agent.as_str());
     }
-    ws.on_upgrade(handle_socket)
+    ws.on_upgrade(|socket| handle_socket(socket, receiver))
 }
 
-async fn handle_socket(mut socket: WebSocket) {
+async fn handle_socket(mut socket: WebSocket, receiver: Receiver<model::Message>) {
     if let Some(msg) = socket.recv().await {
         if let Ok(msg) = msg {
             match msg {
@@ -41,6 +50,7 @@ async fn handle_socket(mut socket: WebSocket) {
     }
 
     loop {
+        let message = &receiver.await.unwrap();
         if socket
             .send(Message::Text(String::from("Hi!")))
             .await

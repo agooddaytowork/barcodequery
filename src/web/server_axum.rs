@@ -3,14 +3,16 @@ use std::net::SocketAddr;
 use axum::http::Uri;
 use axum::{http::StatusCode, routing::get, Router};
 use hyper;
+use tokio::sync::oneshot::Receiver;
 use tower_http::trace::{DefaultMakeSpan, TraceLayer};
+use crate::barcode_query::model::Message;
 
 use crate::web::handlers;
 
 pub struct WebSocketServer {}
 
 impl WebSocketServer {
-    pub async fn run_until_stopped() -> hyper::Result<()> {
+    pub async fn run_until_stopped(receiver: Receiver<Message>) -> hyper::Result<()> {
         println!("running in websocket");
         let app = Router::new()
             .route("/ws", get(handlers::ws_handler))
