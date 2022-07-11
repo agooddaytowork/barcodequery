@@ -1,26 +1,30 @@
 use std::net::SocketAddr;
 
 use axum::http::Uri;
-use axum::{http::StatusCode, routing::get, Router};
+use axum::{http::StatusCode, routing::get, Extension, Router};
 use hyper;
-use tokio::sync::oneshot::Receiver;
+use tower::ServiceBuilder;
 use tower_http::trace::{DefaultMakeSpan, TraceLayer};
-use crate::barcode_query::model::Message;
 
 use crate::web::handlers;
+use crate::web::state::SharedState;
 
 pub struct WebSocketServer {}
 
 impl WebSocketServer {
-    pub async fn run_until_stopped(receiver: Receiver<Message>) -> hyper::Result<()> {
+    pub async fn run_until_stopped(shared_state: SharedState) -> hyper::Result<()> {
         println!("running in websocket");
         let app = Router::new()
             .route("/ws", get(handlers::ws_handler))
             .route("/health_check", get(handlers::health_check_handler))
-            // logging so we can see whats going on
             .layer(
-                TraceLayer::new_for_http()
-                    .make_span_with(DefaultMakeSpan::default().include_headers(true)),
+                ServiceBuilder::new()
+                    .layer(
+                        // logging so we can see whats going on
+                        TraceLayer::new_for_http()
+                            .make_span_with(DefaultMakeSpan::default().include_headers(true)),
+                    )
+                    .layer(Extension(shared_state)),
             );
 
         let addr = SocketAddr::from(([127, 0, 0, 1], 3000));

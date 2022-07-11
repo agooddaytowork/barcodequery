@@ -18,7 +18,8 @@ pub struct ResultDuplicated {
     bar_code: BarCode,
 }
 
-#[derive(Copy, Clone)]
+#[derive(Clone, Debug)]
 pub struct Message {
-    message_type: u8,
+    pub message_type: u8,
+    pub message_str: String,
 }
