@@ -1,3 +1,3 @@
-pub trait BarcodeReader{
+pub trait BarcodeReader {
     fn read(&self) -> String;
 }
