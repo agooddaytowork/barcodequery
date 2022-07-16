@@ -17,3 +17,9 @@ pub struct ResultExisting {
 pub struct ResultDuplicated {
     bar_code: BarCode,
 }
+
+#[derive(Clone, Debug)]
+pub struct Message {
+    pub message_type: u8,
+    pub message_str: String,
+}

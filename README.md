@@ -38,3 +38,14 @@ cargo build
 # test
 cargo test
 ```
+
+## Manual Testing
+```bash
+# start server in 1 shell
+cargo run
+
+# start client in another shell 
+websocat ws://127.0.0.1:3000/ws
+> hi 
+
+```
